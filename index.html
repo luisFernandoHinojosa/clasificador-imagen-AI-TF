@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Cargar Imagen</title>
+  </head>
+  <body>
+    <h1 class="font-bold">Clasificar</h1>
+    <form id="uploadForm" class="p-3 border flex gap-3">
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        required
+        class="border p-1"
+      />
+      <button type="submit" class="bg-blue-500 p-3 rounded-lg">Predecir</button>
+    </form>
+    <div id="imagePreview" class="border p-2 flex mx-auto">
+      <h2 class="font-semibold">Imagen</h2>
+      <img
+        id="preview"
+        src=""
+        style="max-width: 300px; max-height: 300px"
+        class=""
+      />
+    </div>
+    <div id="result"></div>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+      const imageInput = document.getElementById("imageInput");
+      const preview = document.getElementById("preview");
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const imageFile = imageInput.files[0];
+        const formData = new FormData();
+        formData.append("image", imageFile);
+
+        const response = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        document.getElementById(
+          "result"
+        ).innerText = `Predicción: ${result.label} (${result.score}%)`;
+      });
+    </script>
+  </body>
+</html>
